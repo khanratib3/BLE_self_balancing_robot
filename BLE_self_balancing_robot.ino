@@ -171,7 +171,6 @@ void loop() {
         Serial.println(receivedString);
         customCharacteristic.writeValue("Data received");
 
-        // Handle movement and PID tuning commands
         String cmd = String(receivedString);
 
         if (cmd == "FORWARD") {
@@ -202,12 +201,6 @@ void loop() {
         } else if (cmd == "D DOWN") {
           k_d -= 0.01;
         }
-
-        // Feedback PID parameters over BLE
-        char pidBuffer[64];
-        snprintf(pidBuffer, sizeof(pidBuffer), "P%.2f I%.2f D%.3f A%.3f", k_p, k_i, k_d, desired_angle);
-        customCharacteristic.writeValue((const unsigned char*)pidBuffer, strlen(pidBuffer));
-        delay(500);
       }
 
       // Re-run sensor reading and PID updates while connected
@@ -232,10 +225,6 @@ void loop() {
       response = constrain(response, -255, 255);
       pwm = abs(response);
       previous_err = err;
-
-      snprintf(pidBuffer, sizeof(pidBuffer), "P:%.2f I:%.2f D:%.2f A:%.2f", k_p, k_i, k_d, desired_angle);
-      customCharacteristic.writeValue((const unsigned char*)pidBuffer, strlen(pidBuffer));
-      delay(500);  // Throttle BLE updates
       
       // Handle movement flags (forward, backward, turning)
       if (!left_flag && !right_flag) {
